@@ -11,9 +11,15 @@ if (!fs.existsSync(uploadDir)) {
 
 const { app } = await import('./app.js');
 const { pool } = await import('./config/database.js');
+const { runMigrations } = await import('./config/migrate.js');
 const { initActivityTable } = await import('./services/activityService.js');
 
-await initActivityTable();
+try {
+  await runMigrations();
+  await initActivityTable();
+} catch (dbErr) {
+  console.error('[Startup] Critical database initialization/migration error:', dbErr);
+}
 
 const port = Number(process.env.PORT ?? 4000);
 
