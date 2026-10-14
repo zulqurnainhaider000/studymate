@@ -3,7 +3,12 @@ import multer from 'multer';
 import { ZodError } from 'zod';
 
 export class HttpError extends Error {
-  constructor(public readonly statusCode: number, public readonly code: string, message: string) {
+  constructor(
+    public readonly statusCode: number,
+    public readonly code: string,
+    message: string,
+    public readonly details?: unknown,
+  ) {
     super(message);
     this.name = 'HttpError';
   }
@@ -23,7 +28,13 @@ export const errorHandler: ErrorRequestHandler = (error, _req, res, _next) => {
     return;
   }
   if (error instanceof HttpError) {
-    res.status(error.statusCode).json({ error: { code: error.code, message: error.message } });
+    res.status(error.statusCode).json({
+      error: {
+        code: error.code,
+        message: error.message,
+        ...(error.details !== undefined ? { details: error.details } : {}),
+      },
+    });
     return;
   }
   console.error(error);

@@ -32,6 +32,25 @@ export const changePasswordSchema = z.object({
   query: emptyObject,
 });
 
+export const verifyOtpSchema = z.object({
+  body: z.object({
+    email: z.string().email().transform((email) => email.toLowerCase().trim()),
+    otp: z.string().trim().length(6, 'OTP must be exactly 6 digits'),
+  }),
+  params: emptyObject,
+  query: emptyObject,
+});
+
+export const resendOtpSchema = z.object({
+  body: z.object({
+    email: z.string().email().transform((email) => email.toLowerCase().trim()),
+  }),
+  params: emptyObject,
+  query: emptyObject,
+});
+
 export type RegisterInput = z.infer<typeof registerSchema>['body'];
 export type LoginInput = z.infer<typeof loginSchema>['body'];
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>['body'];
+export type VerifyOtpInput = z.infer<typeof verifyOtpSchema>['body'];
+export type ResendOtpInput = z.infer<typeof resendOtpSchema>['body'];

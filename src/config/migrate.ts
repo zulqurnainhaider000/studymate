@@ -256,6 +256,28 @@ const MIGRATIONS: Migration[] = [
       CREATE INDEX IF NOT EXISTS activities_user_created_idx ON activities(user_id, created_at DESC);
     `,
   },
+  {
+    id: '0005_email_otp',
+    sql: `
+      ALTER TABLE users
+        ADD COLUMN IF NOT EXISTS is_verified BOOLEAN NOT NULL DEFAULT false;
+
+      UPDATE users
+        SET is_verified = true
+        WHERE email_verified_at IS NOT NULL;
+
+      CREATE TABLE IF NOT EXISTS email_otps (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        email TEXT NOT NULL,
+        otp TEXT NOT NULL,
+        expires_at TIMESTAMPTZ NOT NULL,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+      );
+
+      CREATE INDEX IF NOT EXISTS email_otps_email_idx ON email_otps(email);
+      CREATE INDEX IF NOT EXISTS email_otps_created_idx ON email_otps(created_at DESC);
+    `,
+  },
 ];
 
 export const runMigrations = async (): Promise<void> => {
